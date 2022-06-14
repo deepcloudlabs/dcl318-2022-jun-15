@@ -1,6 +1,6 @@
 # DCL-318: Developing Vue 3 Applications
 
-These projects are created as part of the following training: "DCL-314: Building Scalable Web Applications using Node.js, MongoDB and Knockout"
+These projects are created as part of the following training: "DCL-318: Developing Vue 3 Applications"
 
 Please follow the link for the complete training catalog: https://www.deepcloudlabs.com/resources
 
