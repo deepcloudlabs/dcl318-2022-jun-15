@@ -4,6 +4,7 @@ export default class Move {
         this.partial = partial;
         this.perfect = perfect;
         this.evaluation = "";
+
         if (perfect === 0 && partial === 0)
             this.evaluation = "No Match";
         else {

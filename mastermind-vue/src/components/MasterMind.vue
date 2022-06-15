@@ -1,42 +1,62 @@
 <template>
   <p></p>
   <div class="container">
+    <BootstrapModalDialog :dialog-text="`You have already used the guess (${this.game.guess})!`"
+                          :close-dialog="closeDialog"
+                          :visible="isDialogVisible"
+                          dialog-title="Alert"></BootstrapModalDialog>
     <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Game Console</h3>
-      </div>
+      <BootstrapCardHeader header="Game Console"/>
       <div class="card-body">
-        <div class="row">
-          <h4>Level: <span class="badge bg-success">{{ game.level }}</span></h4>
-          <h4>Tries: <span class="badge bg-danger">{{ game.tries }}</span> of <span
-              class="badge bg-warning">{{ game.maxTries }}</span></h4>
-          <h4>Lives: <span class="badge bg-info">{{ game.lives }}</span></h4>
+        <div class="mb-1">
+          <BootstrapLabel value="Wins:"/>
+          <BootstrapBadge color="badge bg-primary" :value="statistics.wins"/>
+          of
+          <BootstrapBadge color="bg-success" :value="total"/>
         </div>
-        <div class="col-md-3">
-          <label class="form-label" for="guess">Guess:</label>
-          <input type="text" class="form-control" v-model="game.guess">
-          <button class="btn btn-success"
-                  @click="play">Play
-          </button>
+        <div class="mb-1">
+          <BootstrapLabel value="Loses:"/>
+          <BootstrapBadge color="bg-secondary" :value="statistics.loses"/>
+          of
+          <BootstrapBadge color="bg-success" :value="total"/>
+        </div>
+        <div class="mb-1">
+          <BootstrapLabel value="Game Level:"/>
+          <BootstrapBadge color="bg-success" :value="game.level"/>
+        </div>
+        <div class="mb-1" v-if="game.tries === 0">
+          <BootstrapBadge color="bg-info" value="NEW GAME"/>
+        </div>
+        <div class="mb-1" v-if="game.tries > 0">
+          <BootstrapLabel value="Tries:"/>
+          <BootstrapBadge color="bg-danger" :value="game.tries"/>
+          of
+          <BootstrapBadge color="bg-warning" :value="game.maxTries"/>
+        </div>
+        <div class="mb-1">
+          <BootstrapProgressBar :value="game.counter"/>
+        </div>
+        <div class="mb-3">
+          <BootstrapLabel value="Lives:"/>
+          <BootstrapBadge color="badge bg-info" :value="game.lives"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label card-text mb-2" for="guess">Guess:</label>
+          <input type="text" class="form-control mb-2" v-model="game.guess">
+          <button class="btn btn-success" @click="play">Play</button>
         </div>
         <p></p>
-        <div class="row">
-          <table class="table table-bordered table-hover table-striped">
-            <thead>
-            <tr>
-              <th>No</th>
-              <th>Guess</th>
-              <th>Evaluation</th>
-            </tr>
-            </thead>
+        <div class="mb-3">
+          <BootstrapTable v-if="game.moves.length > 0">
+            <BootstrapTableHeader :headers="['Move No', 'Guess', 'Evaluation']"></BootstrapTableHeader>
             <tbody>
-            <tr v-for="move in game.moves" :key="move.guess">
-              <td></td>
+            <tr v-for="(move,index) in game.moves" :key="move.guess">
+              <td>{{ index + 1 }}</td>
               <td>{{ move.guess }}</td>
-              <td>{{ move.evaluation }}</td>
+              <td><MasterMindEvaluation :move="move"></MasterMindEvaluation></td>
             </tr>
             </tbody>
-          </table>
+          </BootstrapTable>
         </div>
       </div>
     </div>
@@ -44,11 +64,37 @@
 </template>
 <script>
 import Move from "@/model/move";
+import BootstrapBadge from "@/components/BootstrapBadge";
+import BootstrapLabel from "@/components/BootstrapLabel";
+import BootstrapProgressBar from "@/components/BootstrapProgressBar";
+import BootstrapTable from "@/components/BootstrapTable";
+import BootstrapTableHeader from "@/components/BootstrapTableHeader";
+import BootstrapCardHeader from "@/components/BootstrapCardHeader";
+import MasterMindEvaluation from "@/components/MasterMindEvaluation";
+import BootstrapModalDialog from "@/components/BootstrapModalDialog";
 
 export default {
   name: 'MasterMind',
+  components: {
+    BootstrapModalDialog,
+    BootstrapCardHeader, MasterMindEvaluation,
+    BootstrapTableHeader, BootstrapProgressBar, BootstrapLabel, BootstrapBadge, BootstrapTable
+  },
   props: {},
+  mounted() {
+    this.game.secret = this.createSecret();
+    this.timer = setInterval(this.countdown, 1000);
+  },
+  unmounted() {
+    clearInterval(this.timer);
+  },
   methods: {
+    showDialog(){
+      this.isDialogVisible= true;
+    },
+    closeDialog(){
+      this.isDialogVisible= false;
+    },
     evaluateMove() {
       let guessAsString = this.game.guess.toString();
       let secretAsString = this.game.secret.toString();
@@ -69,13 +115,21 @@ export default {
       return new Move(this.game.guess, perfectMatch, partialMatch);
     },
     play() {
+      if (this.game.moves.some( move => Number(this.game.guess) === Number(move.guess) )){
+        this.showDialog();
+        return;
+      }
       this.game.tries++;
       if (Number(this.game.secret) === Number(this.game.guess)) {
         this.game.level++;
+        this.game.maxTries += 2;
+        this.game.lives++;
+        this.statistics.wins++;
         this.initGame();
       } else {
         if (this.game.tries >= this.game.maxTries) {
           this.game.lives--;
+          this.statistics.loses++;
           if (this.game.lives === 0) {
             //TODO: player loses!
           } else {
@@ -86,6 +140,18 @@ export default {
         }
       }
     },
+    countdown() {
+      this.game.counter--;
+      if (this.game.counter <= 0) {
+        this.statistics.loses++;
+        this.game.lives--;
+        if (this.game.lives <= 0) {
+          // TODO: player loses the game
+        } else {
+          this.initGame();
+        }
+      }
+    },
     getRandomDigit(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     },
@@ -93,6 +159,7 @@ export default {
       this.game.tries = 0;
       this.game.secret = this.createSecret();
       this.game.moves = [];
+      this.game.counter = 100;
     },
     createSecret() {
       let digits = []; // [5, 4, 9]
@@ -102,7 +169,13 @@ export default {
         if (digits.includes(digit)) continue;
         digits.push(digit);
       }
+      console.log(digits);
       return digits.reduce((s, d) => 10 * s + d, 0); // 549
+    }
+  },
+  computed: {
+    total() {
+      return this.statistics.wins + this.statistics.loses;
     }
   },
   data: function () {
@@ -114,16 +187,17 @@ export default {
         tries: 0,
         lives: 3,
         maxTries: 10,
-        moves: []
+        moves: [],
+        counter: 100
       },
       statistics: {
         wins: 0,
         loses: 0
-      }
+      },
+      isDialogVisible: false
     }
   }
 }
 </script>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 </style>
