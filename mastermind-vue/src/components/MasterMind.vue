@@ -1,23 +1,25 @@
 <template>
+  <p></p>
   <div class="container">
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Game Console</h3>
       </div>
       <div class="card-body">
-        <div class="form-group">
+        <div class="row">
           <h4>Level: <span class="badge bg-success">{{ game.level }}</span></h4>
           <h4>Tries: <span class="badge bg-danger">{{ game.tries }}</span> of <span
               class="badge bg-warning">{{ game.maxTries }}</span></h4>
           <h4>Lives: <span class="badge bg-info">{{ game.lives }}</span></h4>
         </div>
-        <div class="form-group">
+        <div class="col-md-3">
           <label class="form-label" for="guess">Guess:</label>
           <input type="text" class="form-control" v-model="game.guess">
           <button class="btn btn-success"
                   @click="play">Play</button>
         </div>
-        <div class="form-group">
+        <p></p>
+        <div class="row">
           <table class="table table-bordered table-hover table-striped">
             <thead>
             <tr>
