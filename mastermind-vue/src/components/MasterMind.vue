@@ -16,7 +16,8 @@
           <label class="form-label" for="guess">Guess:</label>
           <input type="text" class="form-control" v-model="game.guess">
           <button class="btn btn-success"
-                  @click="play">Play</button>
+                  @click="play">Play
+          </button>
         </div>
         <p></p>
         <div class="row">
@@ -29,10 +30,10 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-              <td>1</td>
-              <td>123</td>
-              <td>-1 +1</td>
+            <tr v-for="move in game.moves" :key="move.guess">
+              <td></td>
+              <td>{{ move.guess }}</td>
+              <td>{{ move.evaluation }}</td>
             </tr>
             </tbody>
           </table>
@@ -42,13 +43,67 @@
   </div>
 </template>
 <script>
+import Move from "@/model/move";
+
 export default {
   name: 'MasterMind',
   props: {},
   methods: {
-     play() {
-       this.game.tries++;
-     }
+    evaluateMove() {
+      let guessAsString = this.game.guess.toString();
+      let secretAsString = this.game.secret.toString();
+      let perfectMatch = 0, partialMatch = 0;
+      for (let i = 0; i < guessAsString.length; ++i) {
+        let g = guessAsString.charAt(i);
+        for (let j = 0; j < secretAsString.length; ++j) {
+          let s = secretAsString.charAt(j);
+          if (g === s) {
+            if (i === j) {
+              perfectMatch++;
+            } else {
+              partialMatch++;
+            }
+          }
+        }
+      }
+      return new Move(this.game.guess, perfectMatch, partialMatch);
+    },
+    play() {
+      this.game.tries++;
+      if (Number(this.game.secret) === Number(this.game.guess)) {
+        this.game.level++;
+        this.initGame();
+      } else {
+        if (this.game.tries >= this.game.maxTries) {
+          this.game.lives--;
+          if (this.game.lives === 0) {
+            //TODO: player loses!
+          } else {
+            this.initGame();
+          }
+        } else {
+          this.game.moves.push(this.evaluateMove())
+        }
+      }
+    },
+    getRandomDigit(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    initGame() {
+      this.game.tries = 0;
+      this.game.secret = this.createSecret();
+      this.game.moves = [];
+    },
+    createSecret() {
+      let digits = []; // [5, 4, 9]
+      digits.push(this.getRandomDigit(1, 9));
+      while (digits.length < this.game.level) {
+        let digit = this.getRandomDigit(0, 9);
+        if (digits.includes(digit)) continue;
+        digits.push(digit);
+      }
+      return digits.reduce((s, d) => 10 * s + d, 0); // 549
+    }
   },
   data: function () {
     return {
