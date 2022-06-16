@@ -17,8 +17,8 @@
               <label for="cover" class="form-label">Cover:</label>
               <img id="cover" v-bind:src="book.cover">
               <label>
-                <input type="file" style="display: none" class="form-control">
-                <span class="btn btn-info">File</span>
+                <input type="file" style="display: none" v-on:change="selectFile"  class="form-control">
+                <span class="btn btn-info" >File</span>
               </label>
             </div>
             <div class="input-group">
@@ -42,6 +42,16 @@ export default {
   components: {BootstrapInputText, BootstrapCardBody, BootstrapCardHeader, BootstrapCard},
   props: {
     msg: String
+  },
+  methods:{
+    selectFile(event){
+      let file = event.target.files[0];
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        this.book.cover = event.target.result;
+      }
+    }
   },
   data: function (){
     return {
