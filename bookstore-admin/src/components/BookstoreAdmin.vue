@@ -15,7 +15,7 @@
             <BootstrapInputText label="Publisher" :value="book.publisher" @change="book.publisher=$event.target.value"></BootstrapInputText>
             <div class="input-group">
               <label for="cover" class="form-label">Cover:</label>
-              <img id="cover">
+              <img id="cover" v-bind:src="book.cover">
               <label>
                 <input type="file" style="display: none" class="form-control">
                 <span class="btn btn-info">File</span>
