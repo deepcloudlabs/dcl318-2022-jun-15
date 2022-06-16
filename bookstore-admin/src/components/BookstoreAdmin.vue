@@ -63,7 +63,17 @@ export default {
       }).then( res => res.json())
           .then(newBook => alert("Book is inserted: "+newBook.title));
     },
-    updateBook(){},
+    updateBook(){
+      fetch("http://localhost:9001/books",{
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(this.book)
+      }).then( res => res.json())
+          .then(newBook => alert("Book is updated: "+newBook.title));
+    },
     cancelBook(){},
     findBookByIsbn(){
       fetch(`http://localhost:9001/books/${this.book.isbn}`,{
