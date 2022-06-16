@@ -33,20 +33,29 @@
         <BootstrapCardHeader header="Books in the Book Store">
           <button class="btn btn-success" @click="getAllBooks">Find All</button>
         </BootstrapCardHeader>
-        <BootstrapCardBody>
+        <BootstrapCardBody v-if="books.length > 0">
           <BootstrapTable>
-            <BootstrapTableHeader :headers="['No','Cover','ISBN','Title','Author','Price','Page','Publisher']">
-            </BootstrapTableHeader>
-          <tbody>
-            <tr v-for="(kitap,index) in books" :key="kitap.isbn">
+            <BootstrapTableHeader v-if="ifThereIsAnyPriceChange" :headers="['No','Cover','ISBN','Title','Author','Price','Page','Publisher','Operations']"></BootstrapTableHeader>
+            <BootstrapTableHeader v-if="ifThereIsNoPriceChange" :headers="['No','Cover','ISBN','Title','Author','Price','Page','Publisher']"></BootstrapTableHeader>
+            <tbody>
+            <tr v-for="(kitap,index) in books"
+                @click="() => copyTableRow(kitap)"
+                :key="kitap.isbn">
               <td>{{index + 1}}</td>
-              <td><img class="img-thumbnail" style="width: 64px" v-bind:src="kitap.cover"></td>
+              <td><img class="img-thumbnail" style="width: 32px" v-bind:src="kitap.cover"></td>
               <td>{{kitap.isbn}}</td>
               <td>{{kitap.title}}</td>
               <td>{{kitap.author}}</td>
-              <td>{{kitap.price}}</td>
+              <td><BootstrapInputText label=""
+                                      :value="kitap.price"
+                                      @change="kitap.price=$event.target.value; kitap.isChanged= true;" ></BootstrapInputText></td>
               <td>{{kitap.pages}}</td>
               <td>{{kitap.publisher}}</td>
+              <td v-if="ifThereIsAnyPriceChange">
+                <button v-if="kitap.isChanged"
+                        @click="() => updateBookAtRow(kitap)"
+                        class="btn btn-warning">Update Book</button>
+              </td>
             </tr>
           </tbody>
           </BootstrapTable>
@@ -71,7 +80,18 @@ export default {
   props: {
     msg: String
   },
+  computed:{
+    ifThereIsAnyPriceChange(){
+      return this.books.some( a_book => a_book.isChanged );
+    },
+    ifThereIsNoPriceChange(){
+      return !this.ifThereIsAnyPriceChange;
+    }
+  },
   methods:{
+    copyTableRow(selectedBook){
+      this.book.load(selectedBook);
+    },
     selectFile(event){
       let file = event.target.files[0];
       let reader = new FileReader();
@@ -90,6 +110,17 @@ export default {
         body: JSON.stringify(this.book)
       }).then( res => res.json())
           .then(newBook => alert("Book is inserted: "+newBook.title));
+    },
+    updateBookAtRow(updatedBook){
+      fetch("http://localhost:9001/books",{
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(updatedBook)
+      }).then( res => res.json())
+          .then( () => updatedBook.isChanged=false );
     },
     updateBook(){
       fetch("http://localhost:9001/books",{
