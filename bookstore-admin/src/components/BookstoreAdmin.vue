@@ -4,15 +4,15 @@
       <BootstrapCard>
         <BootstrapCardHeader header="Bookstore Admin Console"></BootstrapCardHeader>
         <BootstrapCardBody>
-            <BootstrapInputText label="Isbn" value="book.isbn">
+            <BootstrapInputText label="Isbn" :value="book.isbn" @change="book.isbn=$event" >
               <button class="btn btn-primary">Find Book</button>
             </BootstrapInputText>
-            <BootstrapInputText label="Title" value="book.title"></BootstrapInputText>
-            <BootstrapInputText label="Author" value="book.author"></BootstrapInputText>
-            <BootstrapInputText label="Price" value="book.price"></BootstrapInputText>
-            <BootstrapInputText label="Year" value="book.year"></BootstrapInputText>
-            <BootstrapInputText label="Pages" value="book.pages"></BootstrapInputText>
-            <BootstrapInputText label="Publisher" value="book.publisher"></BootstrapInputText>
+            <BootstrapInputText label="Title" @change="book.title=$event" :value="book.title"></BootstrapInputText>
+            <BootstrapInputText label="Author" :value="book.author" @change="book.author=$event" ></BootstrapInputText>
+            <BootstrapInputText label="Price" :value="book.price" @change="book.price=$event" ></BootstrapInputText>
+            <BootstrapInputText label="Year" :value="book.year" @change="book.year=$event"></BootstrapInputText>
+            <BootstrapInputText label="Pages" :value="book.pages" @change="book.pages=$event"></BootstrapInputText>
+            <BootstrapInputText label="Publisher" :value="book.publisher" @change="book.publisher=$event"></BootstrapInputText>
             <div class="input-group">
               <label for="cover" class="form-label">Cover:</label>
               <img id="cover">
