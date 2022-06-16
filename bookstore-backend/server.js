@@ -115,7 +115,7 @@ app.put('/books',function(req,res){
 		if (book.hasOwnProperty(field))  updatedFields[field]= book[field];
 	}
 	Book.findOneAndUpdate(
-	   {"_id": book._id},
+	   {"isbn": book.isbn},
 	   {$set: updatedFields},
 	   {upsert : false}, 
 	   function(err){
