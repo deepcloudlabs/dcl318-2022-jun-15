@@ -1,7 +1,7 @@
 <template>
-  <BootstrapLabel value="Time:" />
+  <BootstrapLabel :value="label" />
   <div class="progress">
-    <div class="progress-bar progress-bar-animated progress-bar-striped"
+    <div :class="'progress-bar progress-bar-animated '.concat(color)"
          role="progressbar"
          aria-valuenow="0"
          aria-valuemin="0"
@@ -19,7 +19,7 @@ export default {
     BootstrapLabel
   },
   name: "BootstrapProgressBar",
-  props: ["value", "label"]
+  props: ["value", "label", "color"]
 }
 </script>
 

@@ -34,7 +34,7 @@
           <BootstrapBadge color="bg-warning" :value="game.maxTries"/>
         </div>
         <div class="mb-1">
-          <BootstrapProgressBar :value="game.counter"/>
+          <BootstrapProgressBar :value="game.counter" label="Time:" :color="progressBarColor"/>
         </div>
         <div class="mb-3">
           <BootstrapLabel value="Lives:"/>
@@ -53,7 +53,9 @@
             <tr v-for="(move,index) in game.moves" :key="move.guess">
               <td>{{ index + 1 }}</td>
               <td>{{ move.guess }}</td>
-              <td><MasterMindEvaluation :move="move"></MasterMindEvaluation></td>
+              <td>
+                <MasterMindEvaluation :move="move"></MasterMindEvaluation>
+              </td>
             </tr>
             </tbody>
           </BootstrapTable>
@@ -84,16 +86,24 @@ export default {
   mounted() {
     this.game.secret = this.createSecret();
     this.timer = setInterval(this.countdown, 1000);
+    let storage = localStorage.getItem("mastermind-vue");
+    if (storage) {
+      storage = JSON.parse(storage);
+      this.game = storage.game;
+      this.statistics = storage.statistics;
+    } else {
+      localStorage.setItem("mastermind-vue", JSON.stringify({game: this.game, statistics: this.statistics}));
+    }
   },
   unmounted() {
     clearInterval(this.timer);
   },
   methods: {
-    showDialog(){
-      this.isDialogVisible= true;
+    showDialog() {
+      this.isDialogVisible = true;
     },
-    closeDialog(){
-      this.isDialogVisible= false;
+    closeDialog() {
+      this.isDialogVisible = false;
     },
     evaluateMove() {
       let guessAsString = this.game.guess.toString();
@@ -115,17 +125,21 @@ export default {
       return new Move(this.game.guess, perfectMatch, partialMatch);
     },
     play() {
-      if (this.game.moves.some( move => Number(this.game.guess) === Number(move.guess) )){
+      if (this.game.moves.some(move => Number(this.game.guess) === Number(move.guess))) {
         this.showDialog();
         return;
       }
       this.game.tries++;
       if (Number(this.game.secret) === Number(this.game.guess)) {
-        this.game.level++;
-        this.game.maxTries += 2;
-        this.game.lives++;
-        this.statistics.wins++;
-        this.initGame();
+        if (this.game.level === 10) {
+          //TODO: Player wins!
+        } else {
+          this.game.level++;
+          this.game.maxTries += 2;
+          this.game.lives++;
+          this.statistics.wins++;
+          this.initGame();
+        }
       } else {
         if (this.game.tries >= this.game.maxTries) {
           this.game.lives--;
@@ -139,6 +153,7 @@ export default {
           this.game.moves.push(this.evaluateMove())
         }
       }
+      localStorage.setItem("mastermind-vue", JSON.stringify({game: this.game, statistics: this.statistics}));
     },
     countdown() {
       this.game.counter--;
@@ -151,6 +166,7 @@ export default {
           this.initGame();
         }
       }
+      localStorage.setItem("mastermind-vue", JSON.stringify({game: this.game, statistics: this.statistics}));
     },
     getRandomDigit(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -176,6 +192,16 @@ export default {
   computed: {
     total() {
       return this.statistics.wins + this.statistics.loses;
+    },
+    progressBarColor() {
+      // console.log(`progressBarColor is called for ${this.game.counter}`);
+      if (this.game.counter > 80)
+        return "bg-success";
+      if (this.game.counter > 60)
+        return "bg-primary";
+      if (this.game.counter > 40)
+        return "bg-warning";
+      return "bg-danger";
     }
   },
   data: function () {
