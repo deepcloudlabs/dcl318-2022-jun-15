@@ -28,6 +28,30 @@
             </div>
         </BootstrapCardBody>
       </BootstrapCard>
+      <p></p>
+      <BootstrapCard>
+        <BootstrapCardHeader header="Books in the Book Store">
+          <button class="btn btn-success" @click="getAllBooks">Find All</button>
+        </BootstrapCardHeader>
+        <BootstrapCardBody>
+          <BootstrapTable>
+            <BootstrapTableHeader :headers="['No','Cover','ISBN','Title','Author','Price','Page','Publisher']">
+            </BootstrapTableHeader>
+          <tbody>
+            <tr v-for="(kitap,index) in books" :key="kitap.isbn">
+              <td>{{index + 1}}</td>
+              <td><img class="img-thumbnail" style="width: 64px" v-bind:src="kitap.cover"></td>
+              <td>{{kitap.isbn}}</td>
+              <td>{{kitap.title}}</td>
+              <td>{{kitap.author}}</td>
+              <td>{{kitap.price}}</td>
+              <td>{{kitap.pages}}</td>
+              <td>{{kitap.publisher}}</td>
+            </tr>
+          </tbody>
+          </BootstrapTable>
+        </BootstrapCardBody>
+      </BootstrapCard>
     </div>
 </template>
 
@@ -37,9 +61,13 @@ import BootstrapCardHeader from "@/components/BootstrapCardHeader";
 import BootstrapCardBody from "@/components/BootstrapCardBody";
 import Book from "@/model/book";
 import BootstrapInputText from "@/components/BootstrapInputText";
+import BootstrapTable from "@/components/BootstrapTable";
+import BootstrapTableHeader from "@/components/BootstrapTableHeader";
 export default {
   name: 'BookstoreAdmin',
-  components: {BootstrapInputText, BootstrapCardBody, BootstrapCardHeader, BootstrapCard},
+  components: {
+    BootstrapTableHeader,
+    BootstrapTable, BootstrapInputText, BootstrapCardBody, BootstrapCardHeader, BootstrapCard},
   props: {
     msg: String
   },
@@ -74,7 +102,24 @@ export default {
       }).then( res => res.json())
           .then(newBook => alert("Book is updated: "+newBook.title));
     },
-    cancelBook(){},
+    getAllBooks(){
+      fetch("http://localhost:9001/books",{
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then( res => res.json())
+          .then( books => this.books=books );
+    },
+    cancelBook(){
+      fetch(`http://localhost:9001/books/${this.book.isbn}`,{
+        method: "DELETE",
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then( res => res.json())
+          .then( removedBook => this.book.load(removedBook));
+    },
     findBookByIsbn(){
       fetch(`http://localhost:9001/books/${this.book.isbn}`,{
         method: "GET",
@@ -87,7 +132,8 @@ export default {
   },
   data: function (){
     return {
-      book: new Book()
+      book: new Book(),
+      books: []
     }
   }
 }
