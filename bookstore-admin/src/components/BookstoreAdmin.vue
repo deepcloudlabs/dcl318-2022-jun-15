@@ -65,7 +65,15 @@ export default {
     },
     updateBook(){},
     cancelBook(){},
-    findBookByIsbn(){},
+    findBookByIsbn(){
+      fetch(`http://localhost:9001/books/${this.book.isbn}`,{
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
+      }).then( res => res.json())
+          .then( foundBook => this.book.load(foundBook));
+    },
   },
   data: function (){
     return {

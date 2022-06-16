@@ -21,5 +21,12 @@ export default class Book {
         this.author = book.author;
         this.publisher = book.publisher;
     }
+
+    load(book) {
+        for (let prop in this){
+            if (Object.hasOwn(book,prop))
+                this[prop] = book[prop];
+        }
+    }
 }
 
