@@ -5,9 +5,9 @@
                           :close-dialog="closeDialog"
                           :visible="isDialogVisible"
                           dialog-title="Alert"></BootstrapModalDialog>
-    <div class="card">
+    <BootstrapCard>
       <BootstrapCardHeader header="Game Console"/>
-      <div class="card-body">
+      <BootstrapCardBody>
         <div class="mb-1">
           <BootstrapLabel value="Wins:"/>
           <BootstrapBadge color="badge bg-primary" :value="statistics.wins"/>
@@ -60,8 +60,8 @@
             </tbody>
           </BootstrapTable>
         </div>
-      </div>
-    </div>
+      </BootstrapCardBody>
+    </BootstrapCard>
   </div>
 </template>
 <script>
@@ -74,10 +74,14 @@ import BootstrapTableHeader from "@/components/BootstrapTableHeader";
 import BootstrapCardHeader from "@/components/BootstrapCardHeader";
 import MasterMindEvaluation from "@/components/MasterMindEvaluation";
 import BootstrapModalDialog from "@/components/BootstrapModalDialog";
+import BootstrapCard from "@/components/BootstrapCard";
+import BootstrapCardBody from "@/components/BootstrapCardBody";
 
 export default {
   name: 'MasterMind',
   components: {
+    BootstrapCardBody,
+    BootstrapCard,
     BootstrapModalDialog,
     BootstrapCardHeader, MasterMindEvaluation,
     BootstrapTableHeader, BootstrapProgressBar, BootstrapLabel, BootstrapBadge, BootstrapTable
@@ -97,6 +101,7 @@ export default {
   },
   unmounted() {
     clearInterval(this.timer);
+    localStorage.setItem("mastermind-vue", JSON.stringify({game: this.game, statistics: this.statistics}));
   },
   methods: {
     showDialog() {
@@ -125,14 +130,18 @@ export default {
       return new Move(this.game.guess, perfectMatch, partialMatch);
     },
     play() {
+      /*
       if (this.game.moves.some(move => Number(this.game.guess) === Number(move.guess))) {
         this.showDialog();
         return;
       }
+       */
       this.game.tries++;
       if (Number(this.game.secret) === Number(this.game.guess)) {
         if (this.game.level === 10) {
-          //TODO: Player wins!
+          this.game.level=3;
+          this.initGame();
+          this.$router.push("/wins");
         } else {
           this.game.level++;
           this.game.maxTries += 2;
@@ -145,7 +154,9 @@ export default {
           this.game.lives--;
           this.statistics.loses++;
           if (this.game.lives === 0) {
-            //TODO: player loses!
+            this.game.level=3;
+            this.initGame();
+            this.$router.push("/loses");
           } else {
             this.initGame();
           }
@@ -161,7 +172,7 @@ export default {
         this.statistics.loses++;
         this.game.lives--;
         if (this.game.lives <= 0) {
-          // TODO: player loses the game
+          this.$router.push("/loses");
         } else {
           this.initGame();
         }
@@ -185,8 +196,9 @@ export default {
         if (digits.includes(digit)) continue;
         digits.push(digit);
       }
-      console.log(digits);
-      return digits.reduce((s, d) => 10 * s + d, 0); // 549
+      let nextSecret = digits.reduce((s, d) => 10 * s + d, 0);
+      console.log(nextSecret);
+      return nextSecret; // 549
     }
   },
   computed: {
