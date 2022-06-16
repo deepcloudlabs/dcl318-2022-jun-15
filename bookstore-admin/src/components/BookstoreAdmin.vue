@@ -7,12 +7,12 @@
             <BootstrapInputText label="Isbn" :value="book.isbn" @change="book.isbn=$event" >
               <button class="btn btn-primary">Find Book</button>
             </BootstrapInputText>
-            <BootstrapInputText label="Title" @change="book.title=$event" :value="book.title"></BootstrapInputText>
-            <BootstrapInputText label="Author" :value="book.author" @change="book.author=$event" ></BootstrapInputText>
-            <BootstrapInputText label="Price" :value="book.price" @change="book.price=$event" ></BootstrapInputText>
-            <BootstrapInputText label="Year" :value="book.year" @change="book.year=$event"></BootstrapInputText>
-            <BootstrapInputText label="Pages" :value="book.pages" @change="book.pages=$event"></BootstrapInputText>
-            <BootstrapInputText label="Publisher" :value="book.publisher" @change="book.publisher=$event"></BootstrapInputText>
+            <BootstrapInputText label="Title" @change="book.title=$event.target.value" :value="book.title"></BootstrapInputText>
+            <BootstrapInputText label="Author" :value="book.author" @change="book.author=$event.target.value" ></BootstrapInputText>
+            <BootstrapInputText label="Price" :value="book.price" @change="book.price=$event.target.value" ></BootstrapInputText>
+            <BootstrapInputText label="Year" :value="book.year" @change="book.year=$event.target.value"></BootstrapInputText>
+            <BootstrapInputText label="Pages" :value="book.pages" @change="book.pages=$event.target.value"></BootstrapInputText>
+            <BootstrapInputText label="Publisher" :value="book.publisher" @change="book.publisher=$event.target.value"></BootstrapInputText>
             <div class="input-group">
               <label for="cover" class="form-label">Cover:</label>
               <img id="cover">
