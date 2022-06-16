@@ -128,9 +128,9 @@ app.put('/books',function(req,res){
 });
 
 // DELETE /books/1
-app.delete('/books/:id',function(req,res){
-	var id= req.params.id;
-	Book.findOneAndRemove({"_id": id},
+app.delete('/books/:isbn',function(req,res){
+	var isbn= req.params.isbn;
+	Book.findOneAndRemove({"isbn": isbn},
 		function(err,book){
 			if (!err)
 			   res.status(200).send(book);	     		
