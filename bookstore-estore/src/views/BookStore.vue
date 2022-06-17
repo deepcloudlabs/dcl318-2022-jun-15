@@ -17,7 +17,8 @@
             <td>{{ kitap.price}}</td>
             <td>{{ kitap.pages }}</td>
             <td>{{ kitap.publisher }}</td>
-            <td><button class="btn btn-warning">Add to basket</button></td>
+            <td><button  @click="() => addItem(kitap)"
+                         class="btn btn-warning">Add to basket</button></td>
           </tr>
           </tbody>
         </BootstrapTable>
@@ -37,6 +38,11 @@ export default {
   components: {BootstrapCardBody,BootstrapCard,BootstrapTable,BootstrapTableHeader,BootstrapCardHeader},
   mounted() {
       this.$store.dispatch("getBooks");
+  },
+  methods: {
+      addItem(book){
+          this.$store.commit('addItem', book);
+      }
   },
   data: function(){
     return { }
