@@ -24,11 +24,17 @@ let Trade = mongoose.model("trades", tradeSchema);
 const WebSocket = require('ws');
 
 // socket.io
-let express = require('express');
+const express = require('express');
+const socket_io = require('socket.io');
 let sockets = [];
 let app = express();
 let server = app.listen(port);
-let io = require('socket.io').listen(server);
+const io = socket_io(server, {
+    "cors": {
+        "origin": "*",
+        "methods": ["GET", "POST"]
+    }
+});
 io.on('connection', (socket) => {
     sockets.push(socket);
     console.log("New client connected!");
@@ -41,7 +47,7 @@ io.on('connection', (socket) => {
 setInterval(() => {
     let model = {
         "symbol": "BTCUSDT",
-        "price": 9000+5.0 * (Math.random()-0.5),
+        "price": 9000 + 5.0 * (Math.random() - 0.5),
         "quantity": 2.0 * Math.random(),
         "timestamp": new Date().toTimeString()
     };
