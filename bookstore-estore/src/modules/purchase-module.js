@@ -1,10 +1,15 @@
 const PurchaseModule = {
     state: () => ({
-        orders: []
+        purchases: []
     }),
-    mutations: {}, // synchronous
+    mutations: {
+        addPurchase(state, items) {
+            state.purchases = [...state.purchases, items];
+        }
+
+    }, // synchronous
     actions: {}, // asynchronous
-    getter:{}
+    getter: {}
 }
 
-export default  PurchaseModule;
+export default PurchaseModule;

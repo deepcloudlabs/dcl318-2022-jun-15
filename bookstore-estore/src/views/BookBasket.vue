@@ -27,7 +27,8 @@
             <td>{{ totalQuantity }}</td>
             <td>{{ totalPrice }}</td>
             <td>
-              <button class="btn btn-info">Purchase</button>
+              <button @click="purchase"
+                      class="btn btn-info">Purchase</button>
             </td>
           </tr>
           </tbody>
@@ -50,6 +51,9 @@ export default {
   methods: {
     removeItem(item){
        this.$store.commit('removeItem', item);
+    },
+    purchase(){
+        this.$store.dispatch('purchase');
     }
   },
   computed: {
