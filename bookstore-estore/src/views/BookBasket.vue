@@ -2,8 +2,9 @@
   <div class="container">
     <p></p>
     <BootstrapCard>
-      <BootstrapCardHeader header="Basket"/>
-      <BootstrapCardBody>
+      <BootstrapCardHeader header="Basket is empty"  v-if="items.length === 0"/>
+      <BootstrapCardHeader header="Basket"  v-if="items.length > 0"/>
+      <BootstrapCardBody  v-if="items.length > 0">
         <BootstrapTable>
           <BootstrapTableHeader
               :headers="['No','Cover','ISBN','Title','Author','Price','Quantity','Total','Operations']"></BootstrapTableHeader>
@@ -14,10 +15,20 @@
             <td>{{ item.book.isbn }}</td>
             <td>{{ item.book.title }}</td>
             <td>{{ item.book.author }}</td>
-            <td>{{ item.book.price}}</td>
+            <td>{{ item.book.price }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.price }}</td>
-            <td><button  class="btn btn-warning">Remove</button></td>
+            <td>
+              <button class="btn btn-warning" @click="() => removeItem(item)">Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="6"></td>
+            <td>{{ totalQuantity }}</td>
+            <td>{{ totalPrice }}</td>
+            <td>
+              <button class="btn btn-info">Purchase</button>
+            </td>
           </tr>
           </tbody>
         </BootstrapTable>
@@ -35,11 +46,22 @@ import BootstrapCardHeader from "@/components/BootstrapCardHeader";
 
 export default {
   name: "BookBasket",
-  components: {BootstrapCardBody,BootstrapCard,BootstrapTable,BootstrapTableHeader,BootstrapCardHeader},
+  components: {BootstrapCardBody, BootstrapCard, BootstrapTable, BootstrapTableHeader, BootstrapCardHeader},
+  methods: {
+    removeItem(item){
+       this.$store.commit('removeItem', item);
+    }
+  },
   computed: {
-      items(){
-        return this.$store.state.basket.items;
-      }
+    items() {
+      return this.$store.state.basket.items;
+    },
+    totalQuantity() {
+      return this.$store.state.basket.items.reduce((sum, item) => sum + item.quantity, 0);
+    },
+    totalPrice() {
+      return this.$store.state.basket.items.reduce((sum, item) => sum + item.price, 0);
+    }
   }
 }
 </script>

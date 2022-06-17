@@ -15,7 +15,10 @@
           <li class="nav-item">
             <a class="nav-link" href="#">
               <span data-feather="shopping-cart" class="align-text-bottom"></span>
-              <router-link class="btn btn-warning" to="/basket">Basket <BootstrapBadge value="4" color="bg-success"></BootstrapBadge></router-link>
+              <router-link class="btn btn-warning" to="/basket">Basket
+                   <BootstrapBadge :value="numberOfItems" color="bg-success"></BootstrapBadge>
+                   <BootstrapBadge :value="numberOfBooks" color="bg-danger"></BootstrapBadge>
+              </router-link>
             </a>
           </li>
           <li class="nav-item">
@@ -42,7 +45,15 @@
 import BootstrapBadge from "@/components/BootstrapBadge";
 export default {
   name: 'App',
-  components: {BootstrapBadge}
+  components: {BootstrapBadge},
+  computed: {
+    numberOfItems(){
+      return this.$store.state.basket.items.length;
+    },
+    numberOfBooks(){
+      return this.$store.state.basket.items.reduce((sum, item) => sum + item.quantity, 0);
+    }
+  }
 }
 </script>
 
