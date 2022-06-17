@@ -31,19 +31,19 @@ import BootstrapCardBody from "@/components/BootstrapCardBody";
 import BootstrapCard from "@/components/BootstrapCardBody";
 import BootstrapTable from "@/components/BootstrapTable";
 import BootstrapTableHeader from "@/components/BootstrapTableHeader";
+import BootstrapCardHeader from "@/components/BootstrapCardHeader";
 export default {
   name: "BookStore",
-  components: {BootstrapCardBody,BootstrapCard,BootstrapTable,BootstrapTableHeader},
+  components: {BootstrapCardBody,BootstrapCard,BootstrapTable,BootstrapTableHeader,BootstrapCardHeader},
   mounted() {
-    fetch("http://localhost:9001/books",{
-      method: "GET",
-      headers: {
-        "Accept": "application/json"
-      }
-    }).then( res => res.json()).then( books => this.books=books );
+      this.$store.dispatch("getBooks");
   },
   data: function(){
-    return { books : [] }
+    return { }
+  },computed: {
+     books() {
+       return this.$store.state.books;
+     }
   }
 }
 </script>

@@ -5,6 +5,10 @@ import BookBasket from "@/views/BookBasket";
 import BookStore from "@/views/BookStore";
 import {createRouter, createWebHistory} from "vue-router";
 import BookOrders from "@/views/BookOrders";
+import {createStore} from "vuex";
+import BasketModule from "@/modules/basket-module";
+import PurchaseModule from "@/modules/purchase-module";
+import EstoreModule from "@/modules/estore-module";
 
 const routes = [
     {path: "/", component: BookStore},
@@ -17,4 +21,12 @@ const router = createRouter({
     routes
 });
 
-createApp(App).use(router).mount('#app')
+const store = createStore({
+   modules: {
+       basket: BasketModule,
+       purchase: PurchaseModule,
+       estore: EstoreModule
+   }
+});
+
+createApp(App).use(router).use(store).mount('#app')
