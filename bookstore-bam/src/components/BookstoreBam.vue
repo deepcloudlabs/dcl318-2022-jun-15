@@ -18,8 +18,27 @@
             <td>{{ item.quantity }}</td>
             <td>{{ item.price }}</td>
           </tr>
+          <tr>
+            <td colspan="6"></td>
+            <td>{{purchases.reduce((sum,item) => sum + item.quantity , 0)}}</td>
+            <td>{{purchases.reduce((sum,item) => sum + item.price , 0)}}</td>
+          </tr>
           </tbody>
         </BootstrapTable>
+        <p></p>
+        <Bar  :chart-data="bookQuantityChartData"
+              :chart-options="chartOptions"
+              :width="256"
+              :height="256"
+              chartId="1"
+        />
+        <p></p>
+        <Line  :chart-data="bookPriceChartData"
+              :chart-options="chartOptions"
+              :width="256"
+              :height="256"
+              chartId="2"
+        />
       </BootstrapCardBody>
     </BootstrapCard>
   </div>
@@ -31,24 +50,52 @@ import BootstrapCardBody from "@/components/BootstrapCardBody";
 import {io} from "socket.io-client";
 import BootstrapTable from "@/components/BootstrapTable";
 import BootstrapTableHeader from "@/components/BootstrapTableHeader";
+import {Bar, Line} from "vue-chartjs";
+import {Chart, registerables} from "chart.js"
+
+Chart.register(...registerables);
 
 export default {
   name: "BookstoreBam",
-  components: {BootstrapCardBody, BootstrapCardHeader, BootstrapCard,BootstrapTable,BootstrapTableHeader},
+  components: {BootstrapCardBody, BootstrapCardHeader, BootstrapCard,BootstrapTable,BootstrapTableHeader,Bar, Line},
   mounted() {
     this.wsClient = io("ws://localhost:9001");
     this.wsClient.on("connect", () => {
       this.wsClient.on("bam", purchase => {
-        let aggrgatePurchases = [...this.purchases];
         purchase.forEach(item => {
-          aggrgatePurchases.forEach(aggregateItem => {
-            if (aggregateItem.book.isbn === item.book.isbn) {
-              aggregateItem.quantity += item.quantity;
-              aggregateItem.price = aggregateItem.quantity * aggregateItem.book.price;
-            }
-          });
+          let isbn = item.book.isbn;
+          if(!this.books[isbn]){
+             this.books[isbn] = item;
+           } else {
+             this.books[isbn].quantity += item.quantity;
+             this.books[isbn].price += item.price;
+          }
         });
-        this.purchases = aggrgatePurchases;
+        let aggregatedPurchases = [];
+        let chartData = {
+          labels: [],
+          datasets: [
+            {data: [], label: "Quantity"},
+            {data: [], label: "Total"}
+          ]
+        }
+        let total = purchase.reduce((sum,item) => sum + item.price, 0);
+        let priceChartData = {
+          labels: [...this.bookPriceChartData.labels, new Date().toLocaleString()],
+          datasets: [
+            {data: [...this.bookPriceChartData.datasets[0].data, total], label: "Price"}
+          ]
+        };
+        for (let isbn in this.books){
+          let item = this.books[isbn];
+          chartData.labels.push(item.book.title);
+          chartData.datasets[0].data.push(item.quantity);
+          chartData.datasets[1].data.push(item.price);
+          aggregatedPurchases.push(item);
+        }
+        this.bookQuantityChartData = chartData;
+        this.bookPriceChartData = priceChartData;
+        this.purchases = aggregatedPurchases;
       });
     });
   },
@@ -59,8 +106,23 @@ export default {
   data: function () {
     return {
       purchases: [],
-      books: [],
-      wsClient: null
+      books: new Object(),
+      wsClient: null,
+      chartOptions: {
+          responsive: true
+      },
+      bookQuantityChartData: {
+        labels: [],
+        datasets: [
+          {data: [], label: "Quantity"}
+        ]
+      },
+      bookPriceChartData: {
+        labels: [],
+        datasets: [
+          {data: [], label: "Price"}
+        ]
+      }
     };
   }
 }
